@@ -1,0 +1,215 @@
+On Master and Slave:
+
+
+sudo apt-get update
+sudo apt install docker.io -y
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+sudo mkdir -p -m 755 /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo systemctl enable --now kubelet
+
+On Master:
+sudo kubeadm init --apiserver-advertise-address=privateipofmaster
+
+Note: You need to replace “private_ip_of_master” with the actual private ip of your kubernetes master.
+
+Paste the Token on Slave
+
+On Master
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Installing Calico
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml -O
+
+kubectl apply -f calico.yaml
+
+kubectl get nodes
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+Assignment1
+
+1  sudo apt update
+    2  sudo apt install docker.io -y
+    3  sudo nano a.sh
+    4  bash a.sh
+    5  sudo kubeadm init --apiserver-advertise-address=172.31.23.250
+    6  mkdir -p $HOME/.kube
+    7  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    8  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+    9  curl https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml -O
+   10  kubectl apply -f calico.yaml
+   11  kubectl get nodes
+   12  sudo nano deploy.yaml
+   13  kubectl apply -f deploy.yaml
+   14  kubectl get deployment
+   15  kubectl get pods
+
+deploy.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+=====================================================================================
+
+Assignment2
+
+17  sudo nano nginx-services.yaml
+   18  kubectl apply -f nginx-services.yaml
+   19  kubectl get services
+   20  kubectl describe services nginx-service
+   21  kubectl get nodes -o wide
+   22  kubectl get svc nginx-service
+   
+Access the services on public_ip:port mentioned in last command
+
+nginx-services.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+===================================================================================
+
+Assignment 3
+
+26  kubectl get deployment nginx-deployment
+   27  kubectl edit deployment nginx-deployment
+   28  kubectl get deployment nginx-deployment
+   29  kubectl get pods
+
+edit this deployment it is a vi editor file, change replicas to 5 under spec:
+
+===================================================================================
+
+Assignment 4 
+31  kubectl get service nginx-service
+   32  kubectl edit service nginx-service
+   33  kubectl get service nginx-service
+
+Find the spec section in the YAML configuration. Inside the spec, locate the type field and change its value from NodePort to ClusterIP
+
+===================================================================================
+
+Assignment 5
+
+36  sudo nano nginx-deployment-3.yaml
+   37  kubectl apply -f nginx-deployment-3.yaml
+   38  kubectl get deployment
+   39  kubectl get pods
+   40  sudo nano nginx-service-clusterip.yaml
+   41  kubectl apply -f nginx-service-clusterip.yaml
+   42  kubectl get services
+
+47  sudo nano apache.yaml
+   48  kubectl apply -f apache.yaml
+   49  sudo nano nginx.yaml
+   50  kubectl apply -f nginx.yaml
+   51  kubectl get svc
+   52  sudo cat apache.yaml
+   53  sudo cat nginx.yaml
+   54  sudo nano ingress.yaml
+   55  kubectl apply -f ingress.yaml
+   56  sudo cat ingress.yaml
+
+ingress.yaml
+
+ubuntu@ip-172-31-10-78:~$ sudo cat ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress-service
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  #ingressClassName: nginx-example
+  rules:
+  - host: example.com
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 80
+
+apache.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apache-deployment
+  labels:
+    app: apache
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      containers:
+      - name: apache
+        image: apache:latest
+        ports:
+        - containerPort: 81
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-service
+spec:
+  selector:
+    app: apache
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 81
+      targetPort: 80
+
