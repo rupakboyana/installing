@@ -29,8 +29,13 @@ curl https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/ca
 
 kubectl apply -f calico.yaml
 
-kubectl get nodes
-.
+ kubectl get nodes
+ kubectl get nodes
+ sudo nano deploy.yaml
+ kubectl apply -f deploy.yaml
+ kubectl get deployment
+ kubectl get pods
+
 .
 .
 .
