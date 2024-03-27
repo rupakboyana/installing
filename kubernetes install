@@ -9,3 +9,21 @@ echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 sudo apt-get update
 sudo apt-get install -y kubelet kubeadm kubectl
 sudo systemctl enable --now kubelet
+
+# On Master:
+sudo kubeadm init --apiserver-advertise-address=privateipofmaster
+
+Note: You need to replace “private_ip_of_master” with the actual private ip of your kubernetes master.
+
+Paste the Token on Slave
+
+# On Master
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Installing Calico
+curl https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml -O
+
+kubectl apply -f calico.yaml
