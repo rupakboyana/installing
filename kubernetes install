@@ -27,3 +27,6 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 curl https://raw.githubusercontent.com/projectcalico/calico/v3.27.2/manifests/calico.yaml -O
 
 kubectl apply -f calico.yaml
+
+https://trainwithshubham.hashnode.dev/deployed-a-reddit-copy-on-kubernetes-with-ingress-enabled
+for minicube
